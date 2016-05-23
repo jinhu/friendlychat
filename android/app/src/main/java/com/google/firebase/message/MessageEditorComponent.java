@@ -75,16 +75,8 @@ public class MessageEditorComponent {
         mUsername = aUsername;
     }
 
-    public String getUsername() {
-        return mUsername;
-    }
-
     public void setPhotoUrl(String aPhotoUrl) {
         mPhotoUrl = aPhotoUrl;
-    }
-
-    public String getPhotoUrl() {
-        return mPhotoUrl;
     }
 
     public void setFilters(InputFilter[] aInputFilters) {

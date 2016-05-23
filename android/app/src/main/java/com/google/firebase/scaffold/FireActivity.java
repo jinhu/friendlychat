@@ -3,6 +3,7 @@ package com.google.firebase.scaffold;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -22,19 +23,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
+import static com.google.android.gms.common.api.GoogleApiClient.*;
+
 /**
  * Created by jin on 5/22/16.
  */
-public class FireActivity extends AppCompatActivity implements
-        GoogleApiClient.OnConnectionFailedListener{
+public class FireActivity extends AppCompatActivity implements OnConnectionFailedListener{
     private static final String TAG = "ActivityScaffold";
     protected AdView mAdView;
     protected GoogleApiClient mGoogleApiClient;
     protected DatabaseReference mFirebaseDatabaseReference;
     protected FirebaseAnalytics mFirebaseAnalytics;
-
     protected SharedPreferences mSharedPreferences;
-
     protected FirebaseAuth mFirebaseAuth;
     protected FirebaseUser mFirebaseUser;
     protected FirebaseRemoteConfig mFirebaseRemoteConfig;
@@ -44,12 +44,13 @@ public class FireActivity extends AppCompatActivity implements
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
     public static final String ANONYMOUS = "anonymous";
     public static final String MESSAGE_SENT_EVENT = "message_sent";
+    protected int mLayout;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(mLayout);
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -61,7 +62,7 @@ public class FireActivity extends AppCompatActivity implements
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        mGoogleApiClient = new Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, googleSignInOptions)
                 .build();
@@ -103,7 +104,7 @@ public class FireActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
     }
 

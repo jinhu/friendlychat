@@ -10,14 +10,11 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.codelab.friendlychat.MainActivity;
 import com.google.firebase.codelab.friendlychat.R;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.google.firebase.codelab.friendlychat.MainActivity.MESSAGES_CHILD;
 
 /**
  * Created by jin on 5/22/16.
@@ -31,13 +28,22 @@ public class MessageComponent {
     private MessageObserver mObserver;
     private ProgressBar mProgressBar;
     private Activity mContext;
+    private final LinearLayoutManager mManager;
 
     public MessageComponent(Activity aContext, DatabaseReference aFirebaseRef) {
         mContext = aContext;
-        setView((RecyclerView) mContext.findViewById(R.id.messageRecyclerView));
-        createAdapter(aFirebaseRef.child(MESSAGES_CHILD), R.layout.item_message);
+        mView = (RecyclerView)mContext.findViewById(R.id.messageRecyclerView);
+
+        mAdapter = new MessageViewAdapter(aFirebaseRef);
+        mAdapter.registerAdapterDataObserver(mObserver);
+
+        mView.setAdapter(mAdapter);
+
         setProgressBar((ProgressBar) mContext.findViewById(R.id.progressBar));
-        createLayoutManager();
+
+        mManager = new LinearLayoutManager(mContext);
+        mManager.setStackFromEnd(true);
+        mView.setLayoutManager(mManager);
 
     }
 
@@ -49,54 +55,27 @@ public class MessageComponent {
         return mView;
     }
 
-    public void createAdapter(DatabaseReference aChild, int aItemViewId) {
-               mAdapter = new MessageViewAdapter(
-                Message.class,
-               aItemViewId,
-                MessageComponent.MessageViewHolder.class,aChild);
-        mAdapter.registerAdapterDataObserver(mObserver);
-        mView.setAdapter(mAdapter);
 
-
-    }
-
-    public void createLayoutManager() {
-        LinearLayoutManager manager= new LinearLayoutManager(mContext);
-        manager.setStackFromEnd(true);
-        mView.setLayoutManager(manager);
-    }
 
     public void setProgressBar(ProgressBar aProgressBar) {
         mProgressBar = aProgressBar;
     }
 
     public class MessageObserver extends RecyclerView.AdapterDataObserver {
-        private MessageViewAdapter mFirebaseAdapter;
-        private LinearLayoutManager mLinearLayoutManager;
-        private RecyclerView mMessageRecyclerView;
-
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
             super.onItemRangeInserted(positionStart, itemCount);
-            int friendlyMessageCount = mFirebaseAdapter.getItemCount();
-            int lastVisiblePosition = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
-            // If the recycler view is initially being loaded or the user is at the bottom of the list, scroll
-            // to the bottom of the list to show the newly added message.
-            if (lastVisiblePosition == -1 ||
-                    (positionStart >= (friendlyMessageCount - 1) && lastVisiblePosition == (positionStart - 1))) {
-                mMessageRecyclerView.scrollToPosition(positionStart);
+            int count = mAdapter.getItemCount();
+            int position = mManager.findLastCompletelyVisibleItemPosition();
+            if (position == -1 || (positionStart >= (count - 1) && position == (positionStart - 1))) {
+                mView.scrollToPosition(positionStart);
             }
         }
     }
 
     public class MessageViewAdapter extends FirebaseRecyclerAdapter<Message, MessageViewHolder> {
-
-
-        private MainActivity mMainActivity;
-        private ProgressBar mProgressBar;
-
-        public MessageViewAdapter(Class<Message> modelClass, int modelLayout, Class<MessageViewHolder> viewHolderClass, Query ref) {
-            super(modelClass, modelLayout, viewHolderClass, ref);
+        public MessageViewAdapter(Query aRef) {
+            super(Message.class, R.layout.item_message, MessageViewHolder.class, aRef);
         }
 
         @Override
@@ -105,10 +84,10 @@ public class MessageComponent {
             viewHolder.messageTextView.setText(friendlyMessage.getText());
             viewHolder.messengerTextView.setText(friendlyMessage.getName());
             if (friendlyMessage.getPhotoUrl() == null) {
-                viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(mMainActivity,
+                viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(mContext,
                         R.drawable.ic_account_circle_black_36dp));
             } else {
-                Glide.with(mMainActivity)
+                Glide.with(mContext)
                         .load(friendlyMessage.getPhotoUrl())
                         .into(viewHolder.messengerImageView);
             }

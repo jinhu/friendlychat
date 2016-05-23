@@ -38,6 +38,11 @@ public class MainActivity extends FireActivity {
 
     private static final String TAG = "MainActivity";
 
+    {
+        mLayout = R.layout.activity_main;
+
+    }
+
     private MessageComponent mMessageList;
     private MessageEditorComponent mEditor;
 
@@ -50,7 +55,7 @@ public class MainActivity extends FireActivity {
             finish();
         } else {
             mMessageList = new MessageComponent(this, mFirebaseDatabaseReference);
-            mEditor = new MessageEditorComponent(this, mSharedPreferences, mFirebaseDatabaseReference, mFirebaseAnalytics,mFirebaseUser);
+            mEditor = new MessageEditorComponent(this, mSharedPreferences, mFirebaseDatabaseReference, mFirebaseAnalytics, mFirebaseUser);
             initRemoteConfig();
         }
     }
@@ -62,8 +67,8 @@ public class MainActivity extends FireActivity {
         // Define Firebase Remote Config Settings.
         FirebaseRemoteConfigSettings firebaseRemoteConfigSettings =
                 new FirebaseRemoteConfigSettings.Builder()
-                .setDeveloperModeEnabled(true)
-                .build();
+                        .setDeveloperModeEnabled(true)
+                        .build();
 
         // Define default config values. Defaults are used when fetched config values are not
         // available. Eg: if an error occurred fetching values from the server.
@@ -84,15 +89,11 @@ public class MainActivity extends FireActivity {
         if (mFirebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()) {
             cacheExpiration = 0;
         }
-        mFirebaseRemoteConfig.fetch(cacheExpiration)
-                .addOnSuccessListener((aVoid)->{
-                        mFirebaseRemoteConfig.activateFetched();
-                        applyRetrievedLengthLimit();
-                    })
-                .addOnFailureListener((e)-> {
-                        Log.w(TAG, "Error fetching config: " + e.getMessage());
-                        applyRetrievedLengthLimit();
-                    });
+        mFirebaseRemoteConfig.fetch(cacheExpiration).addOnFailureListener((e) -> applyRetrievedLengthLimit())
+                .addOnSuccessListener((aVoid) -> {
+                    mFirebaseRemoteConfig.activateFetched();
+                    applyRetrievedLengthLimit();
+                });
     }
 
     @Override
