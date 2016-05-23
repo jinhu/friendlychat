@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.firebase.codelab.friendlychat;
+package com.google.firebase.message;
 
-public class FriendlyMessage {
+public class Message {
 
     private String id;
     private String text;
     private String name;
     private String photoUrl;
 
-    public FriendlyMessage() {
+    public Message() {
     }
 
-    public FriendlyMessage(String text, String name, String photoUrl) {
+    public Message(String text, String name, String photoUrl) {
         this.text = text;
         this.name = name;
         this.photoUrl = photoUrl;
