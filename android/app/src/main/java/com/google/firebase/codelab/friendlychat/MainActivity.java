@@ -37,14 +37,13 @@ import java.util.Map;
 public class MainActivity extends FireActivity {
 
     private static final String TAG = "MainActivity";
+    private MessageComponent mMessageList;
+    private MessageEditorComponent mEditor;
 
     {
         mLayout = R.layout.activity_main;
 
     }
-
-    private MessageComponent mMessageList;
-    private MessageEditorComponent mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

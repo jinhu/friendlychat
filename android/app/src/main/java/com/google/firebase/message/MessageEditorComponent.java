@@ -22,14 +22,13 @@ import static com.google.firebase.codelab.friendlychat.MainActivity.MESSAGE_SENT
  * Created by jin on 5/22/16.
  */
 public class MessageEditorComponent {
+    public static final String INSTANCE_ID_TOKEN_RETRIEVED = "iid_token_retrieved";
+    public static final String FRIENDLY_MSG_LENGTH = "friendly_msg_length";
     private final EditText mMessageEditText;
     private final Button mSendButton;
     private final Activity mContext;
-    private String mUsername=ANONYMOUS;
-    private String mPhotoUrl=null;
-
-    public static final String INSTANCE_ID_TOKEN_RETRIEVED = "iid_token_retrieved";
-    public static final String FRIENDLY_MSG_LENGTH = "friendly_msg_length";
+    private String mUsername = ANONYMOUS;
+    private String mPhotoUrl = null;
 
     public MessageEditorComponent(Activity aContext, SharedPreferences mSharedPreferences, DatabaseReference aFirebaseDatabaseReference, FirebaseAnalytics aFirebaseAnalytics, FirebaseUser aFirebaseUser) {
         mContext = aContext;

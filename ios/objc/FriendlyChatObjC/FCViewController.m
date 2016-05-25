@@ -95,6 +95,12 @@ UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDele
   FIRCrashNSLog(@"View loaded");
 }
 
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    NSLog(@"touchesBegan:withEvent:");
+    [self.view endEditing:YES];
+    [super touchesBegan:touches withEvent:event];
+}
+
 - (void)loadAd {
   self.banner.adUnitID = kBannerAdUnitID;
   self.banner.rootViewController = self;
@@ -118,6 +124,9 @@ UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDele
       NSLog(@"Config fetched!");
       [_remoteConfig activateFetched];
       _msglength = _remoteConfig[@"friendly_msg_length"].numberValue.intValue;
+        if(_msglength==0){
+            _msglength=100;
+        }
       NSLog(@"Friendly msg length config: %d", _msglength);
     } else {
       NSLog(@"Config not fetched");

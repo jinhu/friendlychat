@@ -23,12 +23,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
-import static com.google.android.gms.common.api.GoogleApiClient.*;
+import static com.google.android.gms.common.api.GoogleApiClient.Builder;
+import static com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 
 /**
  * Created by jin on 5/22/16.
  */
-public class FireActivity extends AppCompatActivity implements OnConnectionFailedListener{
+public class FireActivity extends AppCompatActivity implements OnConnectionFailedListener {
+    public static final String MESSAGES_CHILD = "messages";
+    public static final int REQUEST_INVITE = 1;
+    public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
+    public static final String ANONYMOUS = "anonymous";
+    public static final String MESSAGE_SENT_EVENT = "message_sent";
     private static final String TAG = "ActivityScaffold";
     protected AdView mAdView;
     protected GoogleApiClient mGoogleApiClient;
@@ -38,12 +44,6 @@ public class FireActivity extends AppCompatActivity implements OnConnectionFaile
     protected FirebaseAuth mFirebaseAuth;
     protected FirebaseUser mFirebaseUser;
     protected FirebaseRemoteConfig mFirebaseRemoteConfig;
-
-    public static final String MESSAGES_CHILD = "messages";
-    public static final int REQUEST_INVITE = 1;
-    public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
-    public static final String ANONYMOUS = "anonymous";
-    public static final String MESSAGE_SENT_EVENT = "message_sent";
     protected int mLayout;
 
 

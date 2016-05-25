@@ -23,19 +23,30 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MessageComponent {
 
 
+    private final LinearLayoutManager mManager;
     private RecyclerView mView;
     private MessageViewAdapter mAdapter;
-    private MessageObserver mObserver;
     private ProgressBar mProgressBar;
     private Activity mContext;
-    private final LinearLayoutManager mManager;
 
     public MessageComponent(Activity aContext, DatabaseReference aFirebaseRef) {
         mContext = aContext;
-        mView = (RecyclerView)mContext.findViewById(R.id.messageRecyclerView);
+        mView = (RecyclerView) mContext.findViewById(R.id.messageRecyclerView);
 
         mAdapter = new MessageViewAdapter(aFirebaseRef);
-        mAdapter.registerAdapterDataObserver(mObserver);
+        mAdapter.registerAdapterDataObserver(
+                new RecyclerView.AdapterDataObserver() {
+                    @Override
+                    public void onItemRangeInserted(int positionStart, int itemCount) {
+                        super.onItemRangeInserted(positionStart, itemCount);
+                        int position = mManager.findLastCompletelyVisibleItemPosition();
+                        if (position == -1
+                                || (positionStart >= (mAdapter.getItemCount() - 1) && position == (positionStart - 1))) {
+                            mView.scrollToPosition(positionStart);
+                        }
+                    }
+                }
+        );
 
         mView.setAdapter(mAdapter);
 
@@ -47,31 +58,18 @@ public class MessageComponent {
 
     }
 
-    public void setView(RecyclerView aView) {
-        mView = aView;
-    }
-
     public RecyclerView getView() {
         return mView;
     }
 
-
+    public void setView(RecyclerView aView) {
+        mView = aView;
+    }
 
     public void setProgressBar(ProgressBar aProgressBar) {
         mProgressBar = aProgressBar;
     }
 
-    public class MessageObserver extends RecyclerView.AdapterDataObserver {
-        @Override
-        public void onItemRangeInserted(int positionStart, int itemCount) {
-            super.onItemRangeInserted(positionStart, itemCount);
-            int count = mAdapter.getItemCount();
-            int position = mManager.findLastCompletelyVisibleItemPosition();
-            if (position == -1 || (positionStart >= (count - 1) && position == (positionStart - 1))) {
-                mView.scrollToPosition(positionStart);
-            }
-        }
-    }
 
     public class MessageViewAdapter extends FirebaseRecyclerAdapter<Message, MessageViewHolder> {
         public MessageViewAdapter(Query aRef) {
@@ -93,6 +91,7 @@ public class MessageComponent {
             }
         }
     }
+
     public class MessageViewHolder extends RecyclerView.ViewHolder {
         public TextView messageTextView;
         public TextView messengerTextView;

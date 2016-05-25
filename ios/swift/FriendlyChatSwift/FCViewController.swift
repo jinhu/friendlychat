@@ -1,19 +1,3 @@
-//
-//  Copyright (c) 2015 Google Inc.
-//
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//  http://www.apache.org/licenses/LICENSE-2.0
-//
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-//
-
 import Photos
 import UIKit
 
@@ -24,11 +8,7 @@ import FirebaseRemoteConfig
 import FirebaseStorage
 import GoogleMobileAds
 
-/**
- * AdMob ad unit IDs are not currently stored inside the google-services.plist file. Developers
- * using AdMob can store them as custom values in another plist, or simply use constants. Note that
- * these ad units are configured to return only test ads, and should not be used outside this sample.
- */
+
 let kBannerAdUnitID = "ca-app-pub-3940256099942544/2934735716"
 
 @objc(FCViewController)
@@ -67,10 +47,6 @@ class FCViewController: UIViewController, UITableViewDataSource, UITableViewDele
     ref = FIRDatabase.database().reference()
 
     remoteConfig = FIRRemoteConfig.remoteConfig()
-    // Create Remote Config Setting to enable developer mode.
-    // Fetching configs from the server is normally limited to 5 requests per hour.
-    // Enabling developer mode allows many more requests to be made per hour, so developers
-    // can test different config values during development.
     let remoteConfigSettings = FIRRemoteConfigSettings(developerModeEnabled: true)
     remoteConfig.configSettings = remoteConfigSettings!
 
@@ -90,16 +66,10 @@ class FCViewController: UIViewController, UITableViewDataSource, UITableViewDele
 
   func fetchConfig() {
     var expirationDuration: Double = 3600
-    // If in developer mode cacheExpiration is set to 0 so each fetch will retrieve values from
-    // the server.
     if (self.remoteConfig.configSettings.isDeveloperModeEnabled) {
       expirationDuration = 0
     }
 
-    // cacheExpirationSeconds is set to cacheExpiration here, indicating that any previously
-    // fetched and cached config would be considered expired because it would have been fetched
-    // more than cacheExpiration seconds ago. Thus the next fetch would go to the server unless
-    // throttling is in progress. The default expiration duration is 43200 (12 hours).
     remoteConfig.fetchWithExpirationDuration(expirationDuration) { (status, error) in
       if (status == .Success) {
         print("Config fetched!")

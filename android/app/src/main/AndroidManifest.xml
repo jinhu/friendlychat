@@ -2,8 +2,8 @@
 <manifest package="com.google.firebase.codelab.friendlychat"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:allowBackup="true"
@@ -19,13 +19,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SignInActivity" />
+        <activity android:name=".SignInActivity"/>
 
         <service
             android:name="com.google.firebase.scaffold.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
 
@@ -33,7 +33,7 @@
             android:name="com.google.firebase.scaffold.MyFirebaseInstanceIdService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
 
