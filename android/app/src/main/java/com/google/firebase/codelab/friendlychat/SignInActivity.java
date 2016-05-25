@@ -35,10 +35,14 @@ public class SignInActivity extends FireActivity {
     private static final int RC_SIGN_IN = 9001;
     private SignInButton mSignInButton;
 
+    {
+        mLayout = R.layout.activity_sign_in;
+
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_in);
+
 
         mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener((v) ->

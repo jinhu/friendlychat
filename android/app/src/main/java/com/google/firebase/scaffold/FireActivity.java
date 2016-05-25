@@ -56,8 +56,10 @@ public class FireActivity extends AppCompatActivity implements OnConnectionFaile
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         // Initialize and request AdMob ad.
         mAdView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        if(mAdView!=null) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
