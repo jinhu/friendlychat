@@ -41,7 +41,6 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.appinvite.AppInvite;
 import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
@@ -65,29 +64,15 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener {
 
-    public static class MessageViewHolder extends RecyclerView.ViewHolder {
-        public TextView messageTextView;
-        public TextView messengerTextView;
-        public CircleImageView messengerImageView;
-
-        public MessageViewHolder(View v) {
-            super(v);
-            messageTextView = (TextView) itemView.findViewById(R.id.messageTextView);
-            messengerTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
-            messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
-        }
-    }
-
-    private static final String TAG = "MainActivity";
     public static final String MESSAGES_CHILD = "messages";
-    private static final int REQUEST_INVITE = 1;
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
     public static final String ANONYMOUS = "anonymous";
+    private static final String TAG = "MainActivity";
+    private static final int REQUEST_INVITE = 1;
     private static final String MESSAGE_SENT_EVENT = "message_sent";
     private String mUsername;
     private String mPhotoUrl;
     private SharedPreferences mSharedPreferences;
-
     private Button mSendButton;
     private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
@@ -121,7 +106,9 @@ public class MainActivity extends AppCompatActivity implements
             return;
         } else {
             mUsername = mFirebaseUser.getDisplayName();
-            mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+            if (mFirebaseUser.getPhotoUrl() != null) {
+                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+            }
         }
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -374,6 +361,19 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
+    }
+
+    public static class MessageViewHolder extends RecyclerView.ViewHolder {
+        public TextView messageTextView;
+        public TextView messengerTextView;
+        public CircleImageView messengerImageView;
+
+        public MessageViewHolder(View v) {
+            super(v);
+            messageTextView = (TextView) itemView.findViewById(R.id.messageTextView);
+            messengerTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
+            messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
+        }
     }
 
 }
