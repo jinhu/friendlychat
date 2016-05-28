@@ -7,8 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import net.manatree.chat.FriendlyMessage;
-
 /**
  * Created by jin on 5/28/16.
  */

@@ -30,7 +30,7 @@
         </service>
 
         <service
-            android:name="net.manatree.chat.MyFirebaseInstanceIdService"
+            android:name="net.manatree.chat.net.manatree.boilerplate.MyFirebaseInstanceIdService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
