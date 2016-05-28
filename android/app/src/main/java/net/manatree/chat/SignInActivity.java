@@ -71,7 +71,11 @@ public class SignInActivity extends ManaActivity {
             // Welcome the user
             FirebaseUser user = authResult.getUser();
             Toast.makeText(this, "Welcome " + user.getEmail(), Toast.LENGTH_LONG).show();
-
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException aE) {
+                aE.printStackTrace();
+            }
             // Go back to the main activity
             startActivity(new Intent(this, MainActivity.class));
         }
