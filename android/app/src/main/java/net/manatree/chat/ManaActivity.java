@@ -1,6 +1,5 @@
 package net.manatree.chat;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,6 +11,7 @@ import android.view.MenuInflater;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -51,30 +51,32 @@ public class ManaActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mUsername = ANONYMOUS;
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+        initSignInConfig();
 
         if (mFirebaseUser == null) {
-            // Not signed in, launch the Sign In activity
-            startActivity(new Intent(this, SignInActivity.class));
-            finish();
             return;
-        } else {
-            mUsername = mFirebaseUser.getDisplayName();
-            if (mFirebaseUser.getPhotoUrl() != null) {
-                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
-            }
         }
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API)
-                .build();
+        mUsername = mFirebaseUser.getDisplayName();
+        if (mFirebaseUser.getPhotoUrl() != null) {
+            mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+        }
 
 
         // Initialize Firebase Measurement.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
+        initRemoteConfig();
+
+
+        if (mAdView != null) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
+    }
+
+    private void initRemoteConfig() {
         // Initialize Firebase Remote Config.
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
 
@@ -92,10 +94,22 @@ public class ManaActivity extends AppCompatActivity implements
         // Apply config settings and default values.
         mFirebaseRemoteConfig.setConfigSettings(firebaseRemoteConfigSettings);
         mFirebaseRemoteConfig.setDefaults(defaultConfigMap);
-        if (mAdView != null) {
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.loadAd(adRequest);
-        }
+    }
+
+    protected void initSignInConfig() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+        // Initialize FirebaseAuth
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
     }
 
     @Override
