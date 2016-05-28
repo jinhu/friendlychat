@@ -57,6 +57,12 @@ public class MainActivity extends ManaActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+       if(mFirebaseUser==null){
+        // Not signed in, launch the Sign In activity
+        startActivity(new Intent(this, SignInActivity.class));
+        finish();
+        return;
+       }
         setContentView(R.layout.activity_main);
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
