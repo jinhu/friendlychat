@@ -32,7 +32,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 
-public class MainActivity extends ManaActivity {
+import net.manatree.message.MessageEditComponent;
+import net.manatree.message.MessageListener;
+import net.manatree.messages.MessageListComponent;
+
+public class MainActivity extends ManaActivity implements MessageListener {
+    protected static final String MESSAGE_SENT_EVENT = "message_sent";
     private static final String TAG = "MainActivity";
     protected ProgressBar mProgressBar;
     protected MessageListComponent mList;
@@ -51,13 +56,15 @@ public class MainActivity extends ManaActivity {
         setContentView(R.layout.activity_main);
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mList = new MessageListComponent(this, (RecyclerView) findViewById(R.id.messageRecyclerView));
+        mList = new MessageListComponent(this, this, (RecyclerView) findViewById(R.id.messageRecyclerView));
 
 
         // Fetch remote config.
         fetchConfig();
 
         mEditor = new MessageEditComponent((EditText) findViewById(R.id.messageEditText), (Button) findViewById(R.id.sendButton), this, mUsername, mPhotoUrl);
+        mEditor.setFilter(mSharedPreferences
+                .getInt(CodelabPreferences.FRIENDLY_MSG_LENGTH, DEFAULT_MSG_LENGTH_LIMIT));
     }
 
     @Override
@@ -161,5 +168,16 @@ public class MainActivity extends ManaActivity {
         Log.d(TAG, "FML is: " + friendly_msg_length);
     }
 
+    @Override
+    public void add(FriendlyMessage aMessage) {
+
+        mList.add(aMessage);
+        mFirebaseAnalytics.logEvent(MESSAGE_SENT_EVENT, null);
+    }
+
+    @Override
+    public void populated() {
+        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+    }
 }
 

@@ -32,7 +32,6 @@ public class ManaActivity extends AppCompatActivity implements
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
     public static final String ANONYMOUS = "anonymous";
     protected static final int REQUEST_INVITE = 1;
-    protected static final String MESSAGE_SENT_EVENT = "message_sent";
     private static final String TAG = "MainActivity";
     protected String mUsername;
     protected String mPhotoUrl;
