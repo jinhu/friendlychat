@@ -12,7 +12,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "net.manatree.chat.friendlychat"
+        applicationId "net.manatree.chat"
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1

@@ -32,9 +32,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 
+import net.manatree.boilerplate.CodelabPreferences;
+import net.manatree.boilerplate.ManaActivity;
+import net.manatree.message.FriendlyMessage;
 import net.manatree.message.MessageEditComponent;
+import net.manatree.message.MessageListComponent;
 import net.manatree.message.MessageListener;
-import net.manatree.messages.MessageListComponent;
 
 public class MainActivity extends ManaActivity implements MessageListener {
     protected static final String MESSAGE_SENT_EVENT = "message_sent";

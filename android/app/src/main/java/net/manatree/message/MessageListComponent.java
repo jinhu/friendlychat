@@ -1,4 +1,4 @@
-package net.manatree.messages;
+package net.manatree.message;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
@@ -12,13 +12,11 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import net.manatree.chat.FriendlyMessage;
 import net.manatree.chat.R;
-import net.manatree.message.MessageListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static net.manatree.chat.ManaActivity.MESSAGES_CHILD;
+import static net.manatree.boilerplate.ManaActivity.MESSAGES_CHILD;
 
 /**
  * Created by jin on 5/28/16.
