@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.manatree.chat.friendlychat;
+package net.manatree.chat;
 
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.rule.ActivityTestRule;
@@ -39,7 +39,7 @@ public class MainActivityEspressoTest {
 
     @Test
     public void verifySignUpButtonDisplayed() {
-        onView(ViewMatchers.withId(R.id.button_sign_up)).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.sign_in_button)).check(matches(isDisplayed()));
     }
 
 }
