@@ -22,7 +22,7 @@
         <activity android:name="net.manatree.chat.SignInActivity" />
 
         <service
-            android:name="net.manatree.chat.MyFirebaseMessagingService"
+            android:name="net.manatree.boilerplate.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -30,7 +30,7 @@
         </service>
 
         <service
-            android:name="net.manatree.chat.net.manatree.boilerplate.MyFirebaseInstanceIdService"
+            android:name="net.manatree.boilerplate.MyFirebaseInstanceIdService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
