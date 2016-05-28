@@ -21,8 +21,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.google.android.gms.appinvite.AppInviteInvitation;
@@ -64,8 +62,12 @@ public class MainActivity extends ManaActivity implements MessageListener {
 
         // Fetch remote config.
         fetchConfig();
+        mEditor = (MessageEditComponent) findViewById(R.id.message_edit);
+        mEditor.setListener(this);
+        mEditor.setUsername(mUsername);
+        mEditor.setPhotoUrl(mPhotoUrl);
 
-        mEditor = new MessageEditComponent((EditText) findViewById(R.id.messageEditText), (Button) findViewById(R.id.sendButton), this, mUsername, mPhotoUrl);
+//        mEditor = new MessageEditComponent((EditText) findViewById(R.id.messageEditText), (Button) findViewById(R.id.sendButton), this, mUsername, mPhotoUrl);
         mEditor.setFilter(mSharedPreferences
                 .getInt(CodelabPreferences.FRIENDLY_MSG_LENGTH, DEFAULT_MSG_LENGTH_LIMIT));
     }
