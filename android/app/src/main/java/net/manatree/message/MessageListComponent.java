@@ -27,7 +27,7 @@ public class MessageListComponent {
     private Context mContext;
     private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
-    private FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder> mFirebaseAdapter;
+    private FirebaseRecyclerAdapter<MessageModel, MessageViewHolder> mFirebaseAdapter;
     private MessageListener mListener;
 
     public MessageListComponent(Context aContext, MessageListener aListener, RecyclerView aRecyclerView) {
@@ -38,23 +38,23 @@ public class MessageListComponent {
         mLinearLayoutManager.setStackFromEnd(true);
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>(
-                FriendlyMessage.class,
+        mFirebaseAdapter = new FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>(
+                MessageModel.class,
                 R.layout.item_message,
                 MessageViewHolder.class,
                 mFirebaseDatabaseReference.child(MESSAGES_CHILD)) {
 
             @Override
-            protected void populateViewHolder(MessageViewHolder viewHolder, FriendlyMessage friendlyMessage, int position) {
+            protected void populateViewHolder(MessageViewHolder viewHolder, MessageModel aMessageModel, int position) {
                 mListener.populated();
-                viewHolder.messageTextView.setText(friendlyMessage.getText());
-                viewHolder.messengerTextView.setText(friendlyMessage.getName());
-                if (friendlyMessage.getPhotoUrl() == null) {
+                viewHolder.messageTextView.setText(aMessageModel.getText());
+                viewHolder.messengerTextView.setText(aMessageModel.getName());
+                if (aMessageModel.getPhotoUrl() == null) {
                     viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(mContext,
                             R.drawable.ic_account_circle_black_36dp));
                 } else {
                     Glide.with(mContext)
-                            .load(friendlyMessage.getPhotoUrl())
+                            .load(aMessageModel.getPhotoUrl())
                             .into(viewHolder.messengerImageView);
                 }
             }
@@ -79,14 +79,14 @@ public class MessageListComponent {
         mMessageRecyclerView.setAdapter(mFirebaseAdapter);
     }
 
-    public void add(FriendlyMessage aFriendlyMessage) {
-        mFirebaseDatabaseReference.child(MESSAGES_CHILD).push().setValue(aFriendlyMessage);
+    public void add(MessageModel aMessageModel) {
+        mFirebaseDatabaseReference.child(MESSAGES_CHILD).push().setValue(aMessageModel);
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
-        public TextView messageTextView;
-        public TextView messengerTextView;
-        public CircleImageView messengerImageView;
+        TextView messageTextView;
+        TextView messengerTextView;
+        CircleImageView messengerImageView;
 
         public MessageViewHolder(View v) {
             super(v);

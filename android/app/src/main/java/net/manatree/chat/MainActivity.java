@@ -17,25 +17,25 @@ package net.manatree.chat;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 
 import net.manatree.boilerplate.CodelabPreferences;
 import net.manatree.boilerplate.ManaActivity;
-import net.manatree.message.FriendlyMessage;
 import net.manatree.message.MessageEditComponent;
 import net.manatree.message.MessageListComponent;
 import net.manatree.message.MessageListener;
+import net.manatree.message.MessageModel;
 
 public class MainActivity extends ManaActivity implements MessageListener {
     protected static final String MESSAGE_SENT_EVENT = "message_sent";
@@ -49,27 +49,34 @@ public class MainActivity extends ManaActivity implements MessageListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (mFirebaseUser == null) {
-            // Not signed in, launch the Sign In activity
-            startActivity(new Intent(this, SignInActivity.class));
-            finish();
+            signIn();
             return;
         }
+        //Remove title bar
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+//Remove notification bar
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main);
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mList = new MessageListComponent(this, this, (RecyclerView) findViewById(R.id.messageRecyclerView));
-
+        mList = new MessageListComponent(this, this, (RecyclerView) findViewById(R.id.message_recycler_view));
 
         // Fetch remote config.
-        fetchConfig();
+        //fetchConfig();
+
         mEditor = (MessageEditComponent) findViewById(R.id.message_edit);
         mEditor.setListener(this);
-        mEditor.setUsername(mUsername);
-        mEditor.setPhotoUrl(mPhotoUrl);
-
-//        mEditor = new MessageEditComponent((EditText) findViewById(R.id.messageEditText), (Button) findViewById(R.id.sendButton), this, mUsername, mPhotoUrl);
         mEditor.setFilter(mSharedPreferences
                 .getInt(CodelabPreferences.FRIENDLY_MSG_LENGTH, DEFAULT_MSG_LENGTH_LIMIT));
+
+        mAdView = (AdView) findViewById(R.id.adView);
+        if (mAdView != null) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
+
     }
 
     @Override
@@ -78,28 +85,9 @@ public class MainActivity extends ManaActivity implements MessageListener {
             case R.id.invite_menu:
                 sendInvitation();
                 return true;
-            case R.id.crash_menu:
-                FirebaseCrash.logcat(Log.ERROR, TAG, "crash caused");
-                causeCrash();
-                return true;
-            case R.id.sign_out_menu:
-                mFirebaseAuth.signOut();
-                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-                mFirebaseUser = null;
-                mUsername = ANONYMOUS;
-                mPhotoUrl = null;
-                startActivity(new Intent(this, SignInActivity.class));
-                return true;
-            case R.id.fresh_config_menu:
-                fetchConfig();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    private void causeCrash() {
-        throw new NullPointerException("Fake null pointer exception");
     }
 
     private void sendInvitation() {
@@ -108,33 +96,6 @@ public class MainActivity extends ManaActivity implements MessageListener {
                 .setCallToActionText(getString(R.string.invitation_cta))
                 .build();
         startActivityForResult(intent, REQUEST_INVITE);
-    }
-
-    // Fetch the config to determine the allowed length of messages.
-    public void fetchConfig() {
-        long cacheExpiration = 3600; // 1 hour in seconds
-        // If developer mode is enabled reduce cacheExpiration to 0 so that each fetch goes to the
-        // server. This should not be used in release builds.
-        if (mFirebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()) {
-            cacheExpiration = 0;
-        }
-        mFirebaseRemoteConfig.fetch(cacheExpiration)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Make the fetched config available via FirebaseRemoteConfig get<type> calls.
-                        mFirebaseRemoteConfig.activateFetched();
-                        applyRetrievedLengthLimit();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // There has been an error fetching the config
-                        Log.w(TAG, "Error fetching config: " + e.getMessage());
-                        applyRetrievedLengthLimit();
-                    }
-                });
     }
 
     @Override
@@ -163,26 +124,35 @@ public class MainActivity extends ManaActivity implements MessageListener {
         }
     }
 
-    /**
-     * Apply retrieved length limit to edit text field. This result may be fresh from the server or it may be from
-     * cached values.
-     */
-    private void applyRetrievedLengthLimit() {
-        Long friendly_msg_length = mFirebaseRemoteConfig.getLong("friendly_msg_length");
-        mEditor.setFilter(friendly_msg_length.intValue());
-        Log.d(TAG, "FML is: " + friendly_msg_length);
-    }
-
     @Override
-    public void add(FriendlyMessage aMessage) {
-
-        mList.add(aMessage);
+    public void add(String aMessage) {
+        mList.add(new MessageModel(aMessage, mUsername, mPhotoUrl));
         mFirebaseAnalytics.logEvent(MESSAGE_SENT_EVENT, null);
     }
 
     @Override
     public void populated() {
         mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+    }
+
+    @Override
+    public void signIn() {
+        startActivity(new Intent(this, SignInActivity.class));
+        finish();
+    }
+
+    @Override
+    public void signOut() {
+        mFirebaseAuth.signOut();
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+        mFirebaseUser = null;
+        mUsername = ANONYMOUS;
+        mPhotoUrl = null;
+    }
+
+    @Override
+    public String getPhotoUrl() {
+        return mPhotoUrl;
     }
 }
 

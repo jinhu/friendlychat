@@ -15,17 +15,17 @@
  */
 package net.manatree.message;
 
-public class FriendlyMessage {
+public class MessageModel {
 
     private String id;
     private String text;
     private String name;
     private String photoUrl;
 
-    public FriendlyMessage() {
+    public MessageModel() {
     }
 
-    public FriendlyMessage(String text, String name, String photoUrl) {
+    public MessageModel(String text, String name, String photoUrl) {
         this.text = text;
         this.name = name;
         this.photoUrl = photoUrl;
