@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -44,7 +43,7 @@ public class ManaActivity extends AppCompatActivity implements
     protected FirebaseAnalytics mFirebaseAnalytics;
     protected FirebaseRemoteConfig mFirebaseRemoteConfig;
     protected GoogleApiClient mGoogleApiClient;
-    private AdView mAdView;
+    protected AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +69,6 @@ public class ManaActivity extends AppCompatActivity implements
         initRemoteConfig();
 
 
-        if (mAdView != null) {
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.loadAd(adRequest);
-        }
     }
 
     private void initRemoteConfig() {

@@ -18,9 +18,21 @@ package net.manatree.chat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ProgressBar;
 
 import com.google.android.gms.appinvite.AppInviteInvitation;
@@ -30,12 +42,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 
-import net.manatree.boilerplate.CodelabPreferences;
 import net.manatree.boilerplate.ManaActivity;
+import net.manatree.fragments.CardContentFragment;
+import net.manatree.fragments.ListContentFragment;
+import net.manatree.fragments.TileContentFragment;
 import net.manatree.message.FriendlyMessage;
 import net.manatree.message.MessageEditComponent;
 import net.manatree.message.MessageListComponent;
 import net.manatree.message.MessageListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends ManaActivity implements MessageListener {
     protected static final String MESSAGE_SENT_EVENT = "message_sent";
@@ -43,11 +60,12 @@ public class MainActivity extends ManaActivity implements MessageListener {
     protected ProgressBar mProgressBar;
     protected MessageListComponent mList;
     private MessageEditComponent mEditor;
+    private DrawerLayout mDrawerLayout;
 
-
-    @Override
+    //@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (mFirebaseUser == null) {
             // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, SignInActivity.class));
@@ -56,20 +74,114 @@ public class MainActivity extends ManaActivity implements MessageListener {
         }
         setContentView(R.layout.activity_main);
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mList = new MessageListComponent(this, this, (RecyclerView) findViewById(R.id.messageRecyclerView));
+        // Create Navigation drawer and inflate layout
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
 
+// Adding menu icon to Toolbar
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+            supportActionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
-        // Fetch remote config.
-        fetchConfig();
-        mEditor = (MessageEditComponent) findViewById(R.id.message_edit);
-        mEditor.setListener(this);
-        mEditor.setUsername(mUsername);
-        mEditor.setPhotoUrl(mPhotoUrl);
+// Set behavior of Navigation drawer
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    // This method will trigger on item Click of navigation menu
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // Set item in checked state
+                        menuItem.setChecked(true);
+                        // TODO: handle navigation
+                        // Closing drawer on item click
+                        mDrawerLayout.closeDrawers();
+                        return true;
+                    }
+                });
+        // Adding Floating Action Button to bottom right of main view
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(v, "Hello Snackbar!",
+                        Snackbar.LENGTH_LONG).show();
+            }
+        });
+//        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+//        mList = (MessageListComponent) findViewById(R.id.messageRecyclerView);
+//        mList.setListener(this);
+//
+//
+//        // Fetch remote config.
+//        fetchConfig();
+//        mEditor = (MessageEditComponent) findViewById(R.id.message_edit);
+//        mEditor.setListener(this);
+//        mEditor.setUsername(mUsername);
+//        mEditor.setPhotoUrl(mPhotoUrl);
+//
+////        mEditor = new MessageEditComponent((EditText) findViewById(R.id.messageEditText), (Button) findViewById(R.id.sendButton), this, mUsername, mPhotoUrl);
+//        mEditor.setFilter(mSharedPreferences
+//                .getInt(CodelabPreferences.FRIENDLY_MSG_LENGTH, DEFAULT_MSG_LENGTH_LIMIT));
+//        mAdView = (AdView)findViewById(R.id.adView);
+//        if (mAdView != null) {
+//            AdRequest adRequest = new AdRequest.Builder().build();
+//            mAdView.loadAd(adRequest);
+//        }
+//    }
+//
+//
+//
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_main);
+//        // Adding Toolbar to Main screen
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        // Setting ViewPager for each Tabs
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
+        // Set Tabs inside Toolbar
+        TabLayout tabs = (TabLayout) findViewById(R.id.tabs);
+        tabs.setupWithViewPager(viewPager);
+    }
+    // Add Fragments to Tabs
+    private void setupViewPager(ViewPager viewPager) {
+        Adapter adapter = new Adapter(getSupportFragmentManager());
+        adapter.addFragment(new ListContentFragment(), "List");
+        adapter.addFragment(new TileContentFragment(), "Tile");
+        adapter.addFragment(new CardContentFragment(), "Card");
+        viewPager.setAdapter(adapter);
+    }
 
-//        mEditor = new MessageEditComponent((EditText) findViewById(R.id.messageEditText), (Button) findViewById(R.id.sendButton), this, mUsername, mPhotoUrl);
-        mEditor.setFilter(mSharedPreferences
-                .getInt(CodelabPreferences.FRIENDLY_MSG_LENGTH, DEFAULT_MSG_LENGTH_LIMIT));
+    static class Adapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        public Adapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
     }
 
     @Override
@@ -93,11 +205,13 @@ public class MainActivity extends ManaActivity implements MessageListener {
             case R.id.fresh_config_menu:
                 fetchConfig();
                 return true;
+            case R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
     private void causeCrash() {
         throw new NullPointerException("Fake null pointer exception");
     }

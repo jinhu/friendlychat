@@ -1,9 +1,11 @@
 package net.manatree.message;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
 
@@ -22,21 +24,23 @@ import static net.manatree.boilerplate.ManaActivity.MESSAGES_CHILD;
  * Created by jin on 5/28/16.
  */
 
-public class MessageListComponent {
+public class MessageListComponent extends RecyclerView{
     protected DatabaseReference mFirebaseDatabaseReference;
-    private Context mContext;
-    private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder> mFirebaseAdapter;
     private MessageListener mListener;
 
-    public MessageListComponent(Context aContext, MessageListener aListener, RecyclerView aRecyclerView) {
-        mMessageRecyclerView = aRecyclerView;
-        mContext = aContext;
-        mListener = aListener;
-        mLinearLayoutManager = new LinearLayoutManager(mContext);
-        mLinearLayoutManager.setStackFromEnd(true);
+    public MessageListComponent(Context context) {
+        super(context);
+    }
 
+    public MessageListComponent(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        if(isInEditMode()){
+            return;
+        }
+        mLinearLayoutManager = new LinearLayoutManager(context);
+        mLinearLayoutManager.setStackFromEnd(true);
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirebaseAdapter = new FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>(
                 FriendlyMessage.class,
@@ -50,10 +54,10 @@ public class MessageListComponent {
                 viewHolder.messageTextView.setText(friendlyMessage.getText());
                 viewHolder.messengerTextView.setText(friendlyMessage.getName());
                 if (friendlyMessage.getPhotoUrl() == null) {
-                    viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(mContext,
+                    viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(getContext(),
                             R.drawable.ic_account_circle_black_36dp));
                 } else {
-                    Glide.with(mContext)
+                    Glide.with(getContext())
                             .load(friendlyMessage.getPhotoUrl())
                             .into(viewHolder.messengerImageView);
                 }
@@ -70,17 +74,24 @@ public class MessageListComponent {
                 // to the bottom of the list to show the newly added message.
                 if (lastVisiblePosition == -1 ||
                         (positionStart >= (friendlyMessageCount - 1) && lastVisiblePosition == (positionStart - 1))) {
-                    mMessageRecyclerView.scrollToPosition(positionStart);
+                    scrollToPosition(positionStart);
                 }
             }
         });
 
-        mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mMessageRecyclerView.setAdapter(mFirebaseAdapter);
+        setLayoutManager(mLinearLayoutManager);
+        setAdapter(mFirebaseAdapter);
     }
 
     public void add(FriendlyMessage aFriendlyMessage) {
         mFirebaseDatabaseReference.child(MESSAGES_CHILD).push().setValue(aFriendlyMessage);
+    }
+    public MessageListener getListener() {
+        return mListener;
+    }
+
+    public void setListener(MessageListener aListener) {
+        mListener = aListener;
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
