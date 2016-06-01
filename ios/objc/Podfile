@@ -9,5 +9,7 @@ pod 'Firebase/Crash'
 pod 'Firebase/Database'
 pod 'Firebase/RemoteConfig'
 
+pod 'Google/SignIn', '~> 1.0.7'
+
 target 'FriendlyChatObjC' do
 end

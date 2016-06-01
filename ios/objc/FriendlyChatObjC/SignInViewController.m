@@ -18,12 +18,12 @@
 #import "Constants.h"
 #import "MeasurementHelper.h"
 #import "SignInViewController.h"
-
-@import Firebase;
+@import FirebaseAuth;
 
 @interface SignInViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *emailField;
 @property (weak, nonatomic) IBOutlet UITextField *passwordField;
+
 @end
 
 @implementation SignInViewController
@@ -33,6 +33,7 @@
   if (user) {
     [self signedIn:user];
   }
+   
 }
 
 - (IBAction)didTapSignIn:(id)sender {
@@ -118,5 +119,91 @@
                                                       object:nil userInfo:nil];
   [self performSegueWithIdentifier:SeguesSignInToFp sender:nil];
 }
+- (IBAction)didTapGoogleSignIn:(id)sender {
+    if ([self googleIsSetup]) {
+        [self googleLogin];
+    }
+}
+
+- (void)showErrorAlertWithMessage:(NSString *)message
+{
+    // display an alert with the error message
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                    message:message
+                                                   delegate:nil
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil];
+    [alert show];
+}
+
+/*****************************
+ *          GOOGLE           *
+ *****************************/
+- (BOOL)googleIsSetup
+{
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
+    NSDictionary *plist = [NSDictionary dictionaryWithContentsOfFile:path];
+    NSString *reversedClientId =[plist objectForKey:@"REVERSED_CLIENT_ID"];
+    BOOL clientIdExists = [plist objectForKey:@"CLIENT_ID"] != nil;
+    BOOL reversedClientIdExists = reversedClientId != nil;
+    BOOL canOpenGoogle =[[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@://", reversedClientId]]];
+    
+    if (!(clientIdExists && reversedClientIdExists && canOpenGoogle)) {
+        [self showErrorAlertWithMessage:@"Please add `GoogleService-Info.plist` to `Supporting Files` and\nURL types > Url Schemes in `Supporting Files/Info.plist`"];
+        return NO;
+    } else {
+        return YES;
+    }
+}
+- (void)googleButtonPressed
+{
+    if ([self googleIsSetup]) {
+        [self googleLogin];
+    }
+}
+
+- (void)googleLogin
+{
+    GIDSignIn *googleSignIn = [GIDSignIn sharedInstance];
+    googleSignIn.delegate = self;
+    googleSignIn.uiDelegate = self;
+    [googleSignIn signIn];
+}
+
+- (void)signIn:(GIDSignIn *)signIn didSignInForUser:(GIDGoogleUser *)user withError:(NSError *)error {
+    NSLog(@"Received Google authentication response! Error: %@", error);
+    if (error != nil) {
+        // There was an error obtaining the Google OAuth token, display a dialog
+        NSString *message = [NSString stringWithFormat:@"There was an error logging into Google: %@",
+                             [error localizedDescription]];
+        [self showErrorAlertWithMessage:message];
+    } else {
+        // We successfully obtained an OAuth token, authenticate on Firebase with it
+        [[FIRAuth auth] authWithOAuthProvider:@"google" token:user.authentication.accessToken withCompletionBlock:[self loginBlockForProviderName:@"Google"]];
+    }
+    
+}
+- (void(^)(NSError *, FAuthData *))loginBlockForProviderName:(NSString *)providerName
+{
+    // this callback block can be used for every login method
+    return ^(NSError *error, FAuthData *authData) {
+        // hide the login progress dialog
+        [self.loginProgressAlert dismissWithClickedButtonIndex:0 animated:YES];
+        self.loginProgressAlert = nil;
+        if (error != nil) {
+            // there was an error authenticating with Firebase
+            NSLog(@"Error logging in to Firebase: %@", error);
+            // display an alert showing the error message
+            NSString *message = [NSString stringWithFormat:@"There was an error logging into Firebase using %@: %@",
+                                 providerName,
+                                 [error localizedDescription]];
+            [self showErrorAlertWithMessage:message];
+        } else {
+            // all is fine, set the current user and update UI
+            [self updateUIAndSetCurrentUser:authData];
+        }
+    };
+}
+
 
 @end

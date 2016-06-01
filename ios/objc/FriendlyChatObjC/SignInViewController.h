@@ -15,7 +15,11 @@
 //
 
 @import UIKit;
+//@import Google::SignIn;
+#import <Google/SignIn.h>
 
-@interface SignInViewController : UIViewController
+@import Firebase;
+
+@interface SignInViewController : UIViewController<UIActionSheetDelegate, GIDSignInDelegate, GIDSignInUIDelegate>
 
 @end
