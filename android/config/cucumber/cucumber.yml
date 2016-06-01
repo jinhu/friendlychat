@@ -1,0 +1,6 @@
+# config/cucumber.yml
+##YAML Template
+---
+android: --tags ~@in_progress --format progress --format json --out=features_report.json
+html_report: --tags ~@in_progress --format progress --format json --out=features_report.json
+bvt:  --tags ~@in_progress --tags @bvt

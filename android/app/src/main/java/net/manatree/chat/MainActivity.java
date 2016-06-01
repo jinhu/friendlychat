@@ -24,8 +24,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.auth.api.Auth;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -62,21 +60,10 @@ public class MainActivity extends ManaActivity implements MessageListener {
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         mList = new MessageListComponent(this, this, (RecyclerView) findViewById(R.id.message_recycler_view));
-
-        // Fetch remote config.
-        //fetchConfig();
-
         mEditor = (MessageEditComponent) findViewById(R.id.message_edit);
         mEditor.setListener(this);
         mEditor.setFilter(mSharedPreferences
                 .getInt(CodelabPreferences.FRIENDLY_MSG_LENGTH, DEFAULT_MSG_LENGTH_LIMIT));
-
-        mAdView = (AdView) findViewById(R.id.adView);
-        if (mAdView != null) {
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.loadAd(adRequest);
-        }
-
     }
 
     @Override
