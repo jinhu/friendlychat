@@ -19,6 +19,9 @@
 #import "MeasurementHelper.h"
 #import "SignInViewController.h"
 @import FirebaseAuth;
+@import Firebase;
+#import <GoogleSignIn/GoogleSignIn.h>
+
 
 @interface SignInViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *emailField;
@@ -33,8 +36,23 @@
   if (user) {
     [self signedIn:user];
   }
-   
+    
+    [GIDSignIn sharedInstance].uiDelegate = self;
 }
+- (void)signIn:(GIDSignIn *)signIn
+didSignInForUser:(GIDGoogleUser *)user
+     withError:(NSError *)error {
+    if (error == nil) {
+        GIDAuthentication *authentication = user.authentication;
+        FIRAuthCredential *credential =
+        [FIRGoogleAuthProvider credentialWithIDToken:authentication.idToken
+                                         accessToken:authentication.accessToken];
+        // ...
+    } else{
+    
+    }
+        // ...
+        }
 
 - (IBAction)didTapSignIn:(id)sender {
   // Sign In with credentials.
@@ -50,6 +68,7 @@
                          [self signedIn:user];
                        }];
 }
+
 
 - (IBAction)didTapSignUp:(id)sender {
   NSString *email = _emailField.text;
@@ -169,41 +188,5 @@
     googleSignIn.uiDelegate = self;
     [googleSignIn signIn];
 }
-
-- (void)signIn:(GIDSignIn *)signIn didSignInForUser:(GIDGoogleUser *)user withError:(NSError *)error {
-    NSLog(@"Received Google authentication response! Error: %@", error);
-    if (error != nil) {
-        // There was an error obtaining the Google OAuth token, display a dialog
-        NSString *message = [NSString stringWithFormat:@"There was an error logging into Google: %@",
-                             [error localizedDescription]];
-        [self showErrorAlertWithMessage:message];
-    } else {
-        // We successfully obtained an OAuth token, authenticate on Firebase with it
-        [[FIRAuth auth] authWithOAuthProvider:@"google" token:user.authentication.accessToken withCompletionBlock:[self loginBlockForProviderName:@"Google"]];
-    }
-    
-}
-- (void(^)(NSError *, FAuthData *))loginBlockForProviderName:(NSString *)providerName
-{
-    // this callback block can be used for every login method
-    return ^(NSError *error, FAuthData *authData) {
-        // hide the login progress dialog
-        [self.loginProgressAlert dismissWithClickedButtonIndex:0 animated:YES];
-        self.loginProgressAlert = nil;
-        if (error != nil) {
-            // there was an error authenticating with Firebase
-            NSLog(@"Error logging in to Firebase: %@", error);
-            // display an alert showing the error message
-            NSString *message = [NSString stringWithFormat:@"There was an error logging into Firebase using %@: %@",
-                                 providerName,
-                                 [error localizedDescription]];
-            [self showErrorAlertWithMessage:message];
-        } else {
-            // all is fine, set the current user and update UI
-            [self updateUIAndSetCurrentUser:authData];
-        }
-    };
-}
-
 
 @end
